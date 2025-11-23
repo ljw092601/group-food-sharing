@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>마이페이지</title>
+    <style>
+        body { font-family: sans-serif; background: #f0f2f5; margin: 0; padding: 20px; display: flex; justify-content: center; }
+        .container { background: white; width: 100%; max-width: 500px; padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+
+        h2 { text-align: center; color: #333; margin-bottom: 30px; }
+
+        /* 프로필 섹션 */
+        .profile-card { text-align: center; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid #eee; }
+        .nickname { font-size: 24px; font-weight: bold; margin-bottom: 10px; }
+
+        /* 신뢰도 점수 강조 */
+        .trust-score-box {
+            background: #e8f5e9; color: #2e7d32; padding: 15px;
+            border-radius: 10px; display: inline-block; margin-top: 10px;
+        }
+        .trust-score-val { font-size: 32px; font-weight: bold; }
+        .trust-label { font-size: 14px; }
+
+        /* 위치 수정 섹션 */
+        .section-title { font-size: 18px; font-weight: bold; margin-bottom: 10px; color: #555; }
+        #map { width: 100%; height: 250px; border-radius: 10px; border: 1px solid #ddd; margin-bottom: 10px; }
+
+        button { width: 100%; padding: 12px; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; margin-top: 10px; transition: 0.2s; }
+        .btn-save { background: #2196F3; color: white; }
+        .btn-save:hover { background: #1976D2; }
+        .btn-back { background: #eee; color: #333; margin-top: 10px; }
+        .btn-back:hover { background: #ddd; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>👤 마이페이지</h2>
+
+    <div class="profile-card">
+        <div class="nickname" id="nickname">로딩중...</div>
+        <div class="trust-score-box">
+            <div class="trust-label">나의 신뢰도</div>
+            <div class="trust-score-val" id="trustScore">--</div>
+            <div style="font-size:12px; margin-top:5px;">(100점 만점)</div>
+        </div>
+    </div>
+
+    <div style="margin-bottom: 20px;">
+        <div class="section-title">📍 내 동네 설정 변경</div>
+        <div style="font-size:12px; color:gray; margin-bottom:5px;">이사를 가셨나요? 지도를 클릭해 새 위치를 저장하세요.</div>
+        <div id="map"></div>
+        <button class="btn-save" onclick="updateLocation()">위치 변경 저장</button>
+    </div>
+
+    <button class="btn-back" onclick="location.href='/'">메인으로 돌아가기</button>
+</div>
+
+<script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=YOUR_KAKAO_JS_KEY&autoload=false"></script>
+
+<script>
+    let map, marker;
+    let selectedLat, selectedLng;
+    const token = localStorage.getItem('accessToken');
+
+    if (!token) {
+        alert("로그인이 필요합니다.");
+        window.location.href = "/login";
+    }
+
+    // 1. 초기 로딩: 내 정보 가져오기
+    fetch('/api/users/me', {
+        headers: { 'Authorization': 'Bearer ' + token }
+    })
+        .then(res => res.json())
+        .then(user => {
+            // 정보 표시
+            document.getElementById('nickname').innerText = user.nickname;
+            document.getElementById('trustScore').innerText = user.trustScore.toFixed(1); // 소수점 1자리까지
+
+            // 지도 초기화 (기존 설정된 위치가 있다면 좋겠지만, 보안상 API가 좌표를 안 주면 기본값 사용)
+            // 여기서는 편의상 부산대 근처를 기본값으로 잡고 시작합니다.
+            initMap(35.232, 129.082);
+        });
+
+    // 2. 지도 초기화 함수
+    function initMap(lat, lng) {
+        kakao.maps.load(function() {
+            var container = document.getElementById('map');
+            var options = { center: new kakao.maps.LatLng(lat, lng), level: 4 };
+            map = new kakao.maps.Map(container, options);
+
+            // 마커 생성
+            marker = new kakao.maps.Marker({ position: map.getCenter() });
+            marker.setMap(map);
+
+            // 클릭 이벤트: 마커 이동 및 좌표 저장
+            kakao.maps.event.addListener(map, 'click', function(mouseEvent) {
+                var latlng = mouseEvent.latLng;
+                marker.setPosition(latlng);
+
+                selectedLat = latlng.getLat();
+                selectedLng = latlng.getLng();
+            });
+        });
+    }
+
+    // 3. 위치 변경 요청 (PUT)
+    function updateLocation() {
+        if (!selectedLat || !selectedLng) {
+            alert("지도에서 변경할 위치를 클릭해주세요.");
+            return;
+        }
+
+        if(!confirm("정말 이 위치로 변경하시겠습니까?")) return;
+
+        fetch('/api/users/me/location', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + token
+            },
+            body: JSON.stringify({ latitude: selectedLat, longitude: selectedLng })
+        })
+            .then(res => {
+                if (res.ok) {
+                    alert("위치가 변경되었습니다! 메인 화면에서 확인해보세요.");
+                    window.location.href = "/";
+                } else {
+                    alert("변경 실패. 다시 시도해주세요.");
+                }
+            });
+    }
+</script>
+
+</body>
+</html>

@@ -48,6 +48,7 @@ public class PostService {
         post.setCurrentUnits(1);
         post.setPricePerUnit(BigDecimal.valueOf(requestDto.getPricePerUnit()));
         post.setStatus(CoBuyStatus.RECRUITING);
+        post.setPurchaseUrl(requestDto.getPurchaseUrl());
 
         // 2. 위치 정보 변환
         post.setLocation(geometryUtil.createPoint(requestDto.getLongitude(), requestDto.getLatitude()));

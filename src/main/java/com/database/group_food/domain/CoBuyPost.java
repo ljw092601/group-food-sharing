@@ -64,5 +64,8 @@ public class CoBuyPost {
     @OneToMany(mappedBy = "post")
     private List<TransactionReview> reviews;
 
+    @Column(length = 2048) // URL은 길 수 있으므로 넉넉하게
+    private String purchaseUrl;
+
     // Getter, Setter, 기본 생성자 등...
 }

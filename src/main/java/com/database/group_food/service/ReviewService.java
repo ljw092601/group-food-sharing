@@ -61,13 +61,36 @@ public class ReviewService {
 
     // 신뢰도 계산 및 업데이트 로직
     private void updateTrustScore(User user) {
-        Double avgRating = reviewRepository.getAverageRatingForUser(user);
+        // 1. 실제 받은 평점 평균 (데이터가 없으면 0.0)
+        Double realAvg = reviewRepository.getAverageRatingForUser(user);
+        if (realAvg == null) realAvg = 0.0;
 
-        if (avgRating != null) {
-            // 공식: 평점(1~5) * 20 = 100점 만점 환산
-            // 예: 평균 4.5점 -> 90점
-            double newScore = avgRating * 20.0;
-            user.setTrustScore(newScore); // User 엔티티 업데이트 (Dirty Checking으로 자동 DB 반영)
-        }
+        // 2. 리뷰 개수 (거래 횟수)
+        long count = reviewRepository.countByReviewee(user);
+
+        // --- [베이지안 평균 계산] ---
+        // C: 가중치 기준 점수 (보통 3.5점이나 전체 평균을 사용. 여기선 3.5로 고정)
+        double C = 3.5;
+        // m: 가중치를 주기 위한 최소 리뷰 수 (이 숫자보다 적으면 C에 가깝게 나옴)
+        double m = 3.0;
+
+        // 공식: (count / (count + m)) * realAvg + (m / (count + m)) * C
+        double bayesianAvg = (count / (count + m)) * realAvg + (m / (count + m)) * C;
+
+        // 100점 만점으로 환산
+        double baseScore = bayesianAvg * 20.0;
+
+        // --- [활동 가산점] ---
+        // 거래 1회당 0.5점 추가 (최대 10점까지만)
+        double bonusScore = Math.min(count * 0.5, 10.0);
+
+        // 최종 점수 합산 (최대 100점 넘지 않게)
+        double finalScore = Math.min(baseScore + bonusScore, 100.0);
+
+        // 소수점 1자리까지만 남기기 (깔끔하게)
+        finalScore = Math.round(finalScore * 10.0) / 10.0;
+
+        // 3. DB 업데이트
+        user.setTrustScore(finalScore);
     }
 }

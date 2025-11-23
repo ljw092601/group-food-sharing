@@ -21,6 +21,8 @@ public class PostResponseDto {
     private CoBuyStatus status;
     private String createdAt;
     private Long hostUserId;
+    private String purchaseUrl;
+    private Double hostTrustScore;
 
     // ★ JSON으로 나갈 때 "isReviewed": true/false 로 강제함
     @JsonProperty("isReviewed")
@@ -44,9 +46,11 @@ public class PostResponseDto {
         this.pricePerUnit = entity.getPricePerUnit();
         this.status = entity.getStatus();
         this.createdAt = entity.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
+        this.hostTrustScore = entity.getHostUser().getTrustScore();
 
         this.longitude = entity.getLocation().getX();
         this.latitude = entity.getLocation().getY();
+        this.purchaseUrl = entity.getPurchaseUrl();
 
         // ▼▼▼ [추가] 받아온 값 저장 ▼▼▼
         this.isReviewed = isReviewed;

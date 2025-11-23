@@ -30,4 +30,10 @@ public class PageController {
     public String writePost() {
         return "write-post";
     }
+
+    // 마이페이지
+    @GetMapping("/mypage")
+    public String myPage() {
+        return "my-page";
+    }
 }

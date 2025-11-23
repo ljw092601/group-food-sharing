@@ -22,6 +22,13 @@
 </head>
 <body>
 
+<div style="position: fixed; bottom: 10px; left: 10px; background: rgba(0,0,0,0.8); padding: 10px; border-radius: 8px; z-index: 9999; color: white;">
+    <div style="font-size: 12px; margin-bottom: 5px; font-weight: bold;">⚡ Dev Tools</div>
+    <button onclick="quickLogin('host1', 'password123')" style="background: #ff9800; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; margin-right: 5px;">👨‍💼 방장(host1)</button>
+    <button onclick="quickLogin('parti1', 'password123')" style="background: #2196F3; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; margin-right: 5px;">🙋 참여자(parti1)</button>
+    <button onclick="quickLogin('parti2', 'password123')" style="background: #45a049; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">🙋 참여자(parti2)</button>
+</div>
+
 <div class="auth-box" id="authBox">
     <a href="/login">로그인</a> | <a href="/register">회원가입</a>
 </div>
@@ -68,16 +75,16 @@
                 return res.json();
             })
             .then(user => {
-                myUserId = user.userId; // 내 ID 저장 (마커 구분용)
+                myUserId = user.userId;
 
-                // ★ [핵심] 닉네임을 화면에 표시
                 const authBox = document.getElementById('authBox');
                 authBox.innerHTML = `
-                    <span style="margin-right: 10px;">
-                        <b>${user.nickname}</b>님 환영합니다!
-                    </span>
-                    <button onclick="logout()" style="cursor:pointer;">로그아웃</button>
-                `;
+                <span style="margin-right: 10px;">
+                    <b>${user.nickname}</b>님 환영합니다!
+                </span>
+                <button onclick="location.href='/mypage'" style="cursor:pointer; margin-right:5px;">마이페이지</button>
+                <button onclick="logout()" style="cursor:pointer;">로그아웃</button>
+            `;
 
                 console.log("내 정보 로딩 완료:", user);
             })
@@ -169,12 +176,73 @@
             }
         }
 
+        let urlHtml = '';
+        if (post.purchaseUrl) {
+            // 링크가 길 수 있으니 '구매처 방문' 텍스트로 줄이고 새 창(_blank)으로 띄움
+            urlHtml = `<div style="margin-top:5px;">
+                             <a href="${post.purchaseUrl}" target="_blank" style="color:#2196F3; text-decoration:none; font-size:12px;">
+                               🔗 구매 사이트 보기
+                             </a>
+                           </div>`;
+        }
+
+        // 2. 상세 내용 (너무 길면 자르기 - 선택사항)
+        let descHtml = '';
+        const maxLen = 20; // 20자 넘으면 자름
+
+        if (post.description.length > maxLen) {
+            const shortText = post.description.substring(0, maxLen) + '...';
+            const fullText = post.description;
+
+            // 짧은 버전 (기본 표시)
+            descHtml += `
+                    <div id="desc-short-${post.postId}" style="display:block;">
+                        "${shortText}"
+                        <a href="javascript:void(0);" onclick="toggleDesc(${post.postId})" style="color:#999; font-size:11px; text-decoration:underline; margin-left:3px;">더보기</a>
+                    </div>
+                `;
+
+            // 긴 버전 (숨김 상태)
+            descHtml += `
+                    <div id="desc-full-${post.postId}" style="display:none;">
+                        "${fullText}"
+                        <a href="javascript:void(0);" onclick="toggleDesc(${post.postId})" style="color:#999; font-size:11px; text-decoration:underline; margin-left:3px;">접기</a>
+                    </div>
+                `;
+        } else {
+            // 짧으면 그냥 다 보여줌
+            descHtml = `<div>"${post.description}"</div>`;
+        }
+
+        // 3. HTML 조립
         var content = `
-                <div class="info-box" style="padding:10px; font-size:13px; text-align:center;">
-                    <strong style="font-size:15px;">${post.itemName}</strong><br>
-                    <span style="color:gray; font-size:11px;">${post.status}</span><br>
-                    가격: <b>${post.pricePerUnit}원</b><br>
-                    <div style="margin-top:8px;">${buttonsHtml}</div>
+                <div class="info-box" style="padding:15px; width:220px; font-size:13px; text-align:left; border-radius:10px;">
+
+                    <div style="border-bottom:1px solid #eee; padding-bottom:8px; margin-bottom:8px;">
+                        <strong style="font-size:16px; color:#333;">${post.itemName}</strong>
+                        <span style="float:right; font-size:11px; color:#666;">${post.status}</span>
+                    </div>
+
+                    <div style="margin-bottom:5px; color:#555;">
+                        👤 <b>${post.hostNickname}</b> <span style="color:blue; font-size:11px;">(${post.hostTrustScore.toFixed(1)}점)</span>
+                    </div>
+
+                    <div style="margin-bottom:5px;">
+                        👥 모집: <b style="color:#ff5722;">${post.currentUnits}</b> / ${post.totalUnits} 명
+                    </div>
+
+                    <div style="margin-bottom:5px;">
+                        💰 1인당: <b>${post.pricePerUnit.toLocaleString()}원</b>
+                    </div>
+
+                    <div style="color:#666; font-size:12px; margin-bottom:10px;">
+                        ${descHtml}
+                        ${urlHtml}
+                    </div>
+
+                    <div style="text-align:center; margin-top:10px; padding-top:10px; border-top:1px solid #eee;">
+                        ${buttonsHtml}
+                    </div>
                 </div>
             `;
 
@@ -182,6 +250,27 @@
         kakao.maps.event.addListener(marker, 'click', function() {
             infowindow.open(map, marker);
         });
+    }
+
+    function quickLogin(nickname, password) {
+        fetch('/api/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ nickname: nickname, password: password })
+        })
+            .then(res => {
+                if (!res.ok) throw new Error("로그인 실패 (계정이 없거나 비번 틀림)");
+                return res.json();
+            })
+            .then(data => {
+                localStorage.setItem('accessToken', data.accessToken);
+                // alert(nickname + " 로그인 완료!"); // 귀찮으면 이 줄 주석 처리
+                window.location.reload(); // 페이지 새로고침하여 즉시 적용
+            })
+            .catch(err => {
+                console.error(err);
+                alert("계정이 존재하는지 확인하세요!\n(/register로 먼저 가입 필요)");
+            });
     }
 
     // 5. 참여하기 기능
@@ -250,6 +339,23 @@
             else alert("이미 작성했거나 오류가 있습니다.");
         });
     };
+
+    window.toggleDesc = function(postId) {
+        const shortDiv = document.getElementById(`desc-short-${postId}`);
+        const fullDiv = document.getElementById(`desc-full-${postId}`);
+
+        if (shortDiv.style.display === 'none') {
+            // 접기 -> 더보기 상태로
+            shortDiv.style.display = 'block';
+            fullDiv.style.display = 'none';
+        } else {
+            // 더보기 -> 펼침 상태로
+            shortDiv.style.display = 'none';
+            fullDiv.style.display = 'block';
+        }
+    };
+
+
 </script>
 </body>
 </html>

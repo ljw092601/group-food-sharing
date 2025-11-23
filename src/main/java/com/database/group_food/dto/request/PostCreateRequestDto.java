@@ -13,4 +13,5 @@ public class PostCreateRequestDto {
     private double pricePerUnit;  // 1인당 가격 (예: 2500)
     private double longitude;     // 거래 희망 장소 (경도)
     private double latitude;      // 거래 희망 장소 (위도)
+    private String purchaseUrl;
 }

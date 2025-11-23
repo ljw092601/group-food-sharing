@@ -18,4 +18,6 @@ public interface TransactionReviewRepository extends JpaRepository<TransactionRe
     // 특정 유저가 받은 점수의 '평균'을 계산하는 쿼리
     @Query("SELECT AVG(r.rating) FROM TransactionReview r WHERE r.reviewee = :user")
     Double getAverageRatingForUser(@Param("user") User user);
+
+    long countByReviewee(User reviewee);
 }

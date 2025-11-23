@@ -47,7 +47,7 @@ public class SecurityConfig {
                         // 3. (선택) Swagger 문서 접근 허용 (나중에 추가 시)
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**").permitAll()
                         // ▼▼▼ [추가] 프론트엔드 페이지 허용 (로그인, 회원가입 화면) ▼▼▼
-                        .requestMatchers("/login", "/register").permitAll()
+                        .requestMatchers("/login", "/register", "/mypage").permitAll()
                         // ▼▼▼ [추가] favicon, error 페이지, css/js 폴더 허용 ▼▼▼
                         .requestMatchers("/favicon.ico", "/error", "/css/**", "/js/**").permitAll()
                         // ▼▼▼ [추가] 글쓰기 관련 페이지도 HTML은 열어줍니다! ▼▼▼

@@ -1,0 +1,51 @@
+// src/main/java/com/database/group_food/dto/response/PostResponseDto.java
+package com.database.group_food.dto.response;
+
+import com.database.group_food.domain.CoBuyPost;
+import com.database.group_food.domain.CoBuyStatus;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Getter;
+
+import java.math.BigDecimal;
+import java.time.format.DateTimeFormatter;
+
+@Getter
+public class PostResponseDto {
+    private Long postId;
+    private String hostNickname;
+    private String itemName;
+    private String description;
+    private int totalUnits;
+    private int currentUnits;
+    private BigDecimal pricePerUnit;
+    private CoBuyStatus status;
+    private String createdAt;
+    private Long hostUserId;
+
+    // ★ JSON으로 나갈 때 "isReviewed": true/false 로 강제함
+    @JsonProperty("isReviewed")
+    private boolean isReviewed;
+
+    private double longitude;
+    private double latitude;
+
+    // ▼▼▼ [수정] 생성자 파라미터에 boolean isReviewed 추가 ▼▼▼
+    public PostResponseDto(CoBuyPost entity, boolean isReviewed) {
+        this.postId = entity.getPostId();
+        this.hostUserId = entity.getHostUser().getUserId();
+        this.hostNickname = entity.getHostUser().getNickname();
+        this.itemName = entity.getItemName();
+        this.description = entity.getDescription();
+        this.totalUnits = entity.getTotalUnits();
+        this.currentUnits = entity.getCurrentUnits();
+        this.pricePerUnit = entity.getPricePerUnit();
+        this.status = entity.getStatus();
+        this.createdAt = entity.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
+
+        this.longitude = entity.getLocation().getX();
+        this.latitude = entity.getLocation().getY();
+
+        // ▼▼▼ [추가] 받아온 값 저장 ▼▼▼
+        this.isReviewed = isReviewed;
+    }
+}

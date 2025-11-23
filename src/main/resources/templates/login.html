@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>로그인</title>
+    <style>
+        body { display: flex; justify-content: center; align-items: center; height: 100vh; background: #f0f2f5; }
+        .login-container { background: white; padding: 40px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); width: 300px; }
+        input { width: 100%; padding: 10px; margin: 10px 0; box-sizing: border-box; }
+        button { width: 100%; padding: 10px; background: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer; }
+    </style>
+</head>
+<body>
+<div class="login-container">
+    <h2 style="text-align:center;">로그인</h2>
+    <input type="text" id="nickname" placeholder="닉네임">
+    <input type="password" id="password" placeholder="비밀번호">
+    <button onclick="doLogin()">로그인</button>
+    <p style="text-align:center; margin-top:10px;"><a href="/register">회원가입</a></p>
+</div>
+
+<script>
+    function doLogin() {
+        const nickname = document.getElementById('nickname').value;
+        const password = document.getElementById('password').value;
+
+        fetch('/api/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ nickname: nickname, password: password })
+        })
+            .then(response => {
+                if(response.ok) return response.json();
+                throw new Error('로그인 실패');
+            })
+            .then(data => {
+                // ★ 핵심: JWT 토큰을 브라우저에 저장
+                localStorage.setItem('accessToken', data.accessToken);
+                alert("로그인 성공!");
+                window.location.href = "/"; // 메인으로 이동
+            })
+            .catch(err => alert(err));
+    }
+</script>
+</body>
+</html>

@@ -70,7 +70,7 @@
             .then(user => {
                 myUserId = user.userId; // 내 ID 저장 (마커 구분용)
 
-                // ★ [핵심] 닉네임과 신뢰도 점수를 화면에 표시
+                // ★ [핵심] 닉네임을 화면에 표시
                 const authBox = document.getElementById('authBox');
                 authBox.innerHTML = `
                     <span style="margin-right: 10px;">
@@ -120,12 +120,17 @@
     // 4. 지도에 마커 찍기
     function createMarker(map, post, token) {
 
-        if (myUserId === post.hostUserId && post.status === 'COMPLETED') {
-            return;
+        // 1. 내가 방장(Host)인 경우: 거래 완료(COMPLETED) 시 지도에서 제거
+        if (myUserId === post.hostUserId) {
+            if (post.status === 'COMPLETED') return;
         }
-
-        if (post.isReviewed) {
-            return;
+        // 2. 내가 참여자(Participant)인 경우: 리뷰 작성 완료 시 지도에서 제거
+        else if (post.isParticipant) {
+            if (post.isReviewed) return;
+        }
+        // 3. 제3자(Stranger)인 경우: 모집 중(RECRUITING)이 아니면 지도에서 제거
+        else {
+            if (post.status !== 'RECRUITING') return;
         }
 
         // 1. 상태에 따른 이미지 선택

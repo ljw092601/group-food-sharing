@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>회원가입 - 동네 소분 마켓</title>
+    <style>
+        body { font-family: sans-serif; background: #f0f2f5; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        .container { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 400px; }
+        h2 { text-align: center; margin-bottom: 20px; color: #333; }
+
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 14px; }
+        input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
+
+        /* 지도 스타일 */
+        #map { width: 100%; height: 250px; border-radius: 5px; border: 1px solid #ddd; margin-bottom: 10px; }
+        .map-guide { font-size: 12px; color: #666; text-align: center; margin-bottom: 15px; }
+
+        button { width: 100%; padding: 12px; background: #4CAF50; color: white; border: none; border-radius: 5px; font-size: 16px; cursor: pointer; transition: background 0.3s; }
+        button:hover { background: #45a049; }
+        .link { text-align: center; margin-top: 15px; font-size: 14px; }
+        .link a { color: #2196F3; text-decoration: none; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>회원가입</h2>
+
+    <div class="form-group">
+        <label>닉네임</label>
+        <input type="text" id="nickname" placeholder="사용할 닉네임을 입력하세요">
+    </div>
+
+    <div class="form-group">
+        <label>비밀번호</label>
+        <input type="password" id="password" placeholder="비밀번호 입력">
+    </div>
+
+    <div class="form-group">
+        <label>내 동네 설정 (지도 클릭)</label>
+        <div id="map"></div>
+        <div class="map-guide">📍 지도를 클릭해서 거주지를 설정해주세요.</div>
+
+        <input type="hidden" id="lat">
+        <input type="hidden" id="lng">
+    </div>
+
+    <button onclick="doRegister()">가입하기</button>
+
+    <div class="link">
+        이미 계정이 있으신가요? <a href="/login">로그인</a>
+    </div>
+</div>
+
+<script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=YOUR_KAKAO_JS_KEY&autoload=false"></script>
+
+<script>
+    kakao.maps.load(function() {
+        var container = document.getElementById('map');
+        var options = {
+            center: new kakao.maps.LatLng(35.232, 129.082), // 기본값: 부산대 북문
+            level: 4
+        };
+        var map = new kakao.maps.Map(container, options);
+
+        // 마커 생성 (초기엔 지도 중심에)
+        var marker = new kakao.maps.Marker({
+            position: map.getCenter()
+        });
+        marker.setMap(map);
+
+        // 초기값 세팅
+        setLatLng(map.getCenter());
+
+        // 지도 클릭 이벤트: 마커 이동 및 좌표 저장
+        kakao.maps.event.addListener(map, 'click', function(mouseEvent) {
+            var latlng = mouseEvent.latLng;
+
+            // 마커 위치 이동
+            marker.setPosition(latlng);
+
+            // 좌표값 저장
+            setLatLng(latlng);
+        });
+
+        function setLatLng(latlng) {
+            document.getElementById('lat').value = latlng.getLat();
+            document.getElementById('lng').value = latlng.getLng();
+        }
+    });
+
+    function doRegister() {
+        const nickname = document.getElementById('nickname').value;
+        const password = document.getElementById('password').value;
+        const lat = document.getElementById('lat').value;
+        const lng = document.getElementById('lng').value;
+
+        if (!nickname || !password) {
+            alert("닉네임과 비밀번호를 입력해주세요.");
+            return;
+        }
+
+        const data = {
+            nickname: nickname,
+            password: password,
+            latitude: parseFloat(lat),
+            longitude: parseFloat(lng)
+        };
+
+        fetch('/api/auth/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        })
+            .then(async response => {
+                if (response.ok) {
+                    alert("회원가입 성공! 로그인 페이지로 이동합니다.");
+                    window.location.href = "/login";
+                } else {
+                    let msg = await response.text();
+                    alert("가입 실패: " + msg);
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert("오류가 발생했습니다.");
+            });
+    }
+</script>
+
+</body>
+</html>

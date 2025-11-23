@@ -19,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.IOException;
 import java.util.UUID;
+import com.database.group_food.repository.CoBuyParticipantRepository;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -30,6 +31,7 @@ public class PostService {
     private final CoBuyPostRepository postRepository;
     private final TransactionReviewRepository reviewRepository; // [추가] 후기 확인용 리포지토리 주입
     private final GeometryUtil geometryUtil;
+    private final CoBuyParticipantRepository participantRepository;
 
     @Value("${file.upload-dir}")
     private String uploadDir;
@@ -58,21 +60,20 @@ public class PostService {
     @Transactional(readOnly = true)
     public List<PostResponseDto> getNearbyPosts(User currentUser, double longitude, double latitude, double radius) {
         Point myLocation = geometryUtil.createPoint(longitude, latitude);
-
-        // 1. 주변 글 찾기
         List<CoBuyPost> posts = postRepository.findNearbyPosts(myLocation, radius);
 
-        // 2. 각 글마다 '내가 후기 썼는지' 확인해서 DTO로 변환
         return posts.stream().map(post -> {
             boolean isReviewed = false;
+            boolean isParticipant = false; // [추가] 초기값
 
-            // 로그인한 유저라면 DB에서 확인
             if (currentUser != null) {
                 isReviewed = reviewRepository.existsByPostAndReviewer(post, currentUser);
+                // [추가] 내가 이 글의 참여자인지 확인
+                isParticipant = participantRepository.existsByPostAndParticipantUser(post, currentUser);
             }
 
-            // DTO 생성 (생성자에 isReviewed 전달)
-            return new PostResponseDto(post, isReviewed);
+            // 생성자에 isParticipant 전달
+            return new PostResponseDto(post, isReviewed, isParticipant);
         }).collect(Collectors.toList());
     }
 

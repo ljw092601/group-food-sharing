@@ -26,11 +26,14 @@ public class PostResponseDto {
     @JsonProperty("isReviewed")
     private boolean isReviewed;
 
+    @JsonProperty("isParticipant")
+    private boolean isParticipant;
+
     private double longitude;
     private double latitude;
 
     // ▼▼▼ [수정] 생성자 파라미터에 boolean isReviewed 추가 ▼▼▼
-    public PostResponseDto(CoBuyPost entity, boolean isReviewed) {
+    public PostResponseDto(CoBuyPost entity, boolean isReviewed, boolean isParticipant) {
         this.postId = entity.getPostId();
         this.hostUserId = entity.getHostUser().getUserId();
         this.hostNickname = entity.getHostUser().getNickname();
@@ -47,5 +50,6 @@ public class PostResponseDto {
 
         // ▼▼▼ [추가] 받아온 값 저장 ▼▼▼
         this.isReviewed = isReviewed;
+        this.isParticipant = isParticipant;
     }
 }

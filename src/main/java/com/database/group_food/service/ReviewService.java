@@ -1,4 +1,3 @@
-// src/main/java/com/database/group_food/service/ReviewService.java
 package com.database.group_food.service;
 
 import com.database.group_food.domain.*;
@@ -55,7 +54,7 @@ public class ReviewService {
 
         reviewRepository.save(review);
 
-        // 4. [Trigger 역할] 신뢰도 점수 자동 갱신
+        // 4. 신뢰도 점수 자동 갱신
         updateTrustScore(reviewee);
     }
 
@@ -68,19 +67,17 @@ public class ReviewService {
         // 2. 리뷰 개수 (거래 횟수)
         long count = reviewRepository.countByReviewee(user);
 
-        // --- [베이지안 평균 계산] ---
-        // C: 가중치 기준 점수 (보통 3.5점이나 전체 평균을 사용. 여기선 3.5로 고정)
+        // C: 가중치 기준 점수 (3.5)
         double C = 3.5;
         // m: 가중치를 주기 위한 최소 리뷰 수 (이 숫자보다 적으면 C에 가깝게 나옴)
         double m = 3.0;
 
-        // 공식: (count / (count + m)) * realAvg + (m / (count + m)) * C
+        // 공식에 따라 계산
         double bayesianAvg = (count / (count + m)) * realAvg + (m / (count + m)) * C;
 
         // 100점 만점으로 환산
         double baseScore = bayesianAvg * 20.0;
 
-        // --- [활동 가산점] ---
         // 거래 1회당 0.5점 추가 (최대 10점까지만)
         double bonusScore = Math.min(count * 0.5, 10.0);
 

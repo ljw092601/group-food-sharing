@@ -1,6 +1,5 @@
 package com.database.group_food.domain;
 
-// CoBuyPost.java
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -66,6 +65,4 @@ public class CoBuyPost {
 
     @Column(length = 2048) // URL은 길 수 있으므로 넉넉하게
     private String purchaseUrl;
-
-    // Getter, Setter, 기본 생성자 등...
 }

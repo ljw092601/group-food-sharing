@@ -1,4 +1,3 @@
-// src/main/java/com/database/group_food/service/ParticipationService.java
 package com.database.group_food.service;
 
 import com.database.group_food.domain.CoBuyParticipant;
@@ -18,19 +17,16 @@ public class ParticipationService {
     private final CoBuyPostRepository postRepository;
     private final CoBuyParticipantRepository participantRepository;
 
-    /**
-     * 공동구매 참여하기 (핵심 트랜잭션)
-     */
+    // 공동구매 참여하기 (핵심 트랜잭션)
     @Transactional
     public void joinPost(User user, Long postId) {
 
-        // 1. 게시글 조회 (비관적 락 사용!) 
+        // 1. 게시글 조회
         // -> 누군가 이미 수정 중이라면 여기서 대기하게 됨 (동시성 제어)
         CoBuyPost post = postRepository.findByIdWithLock(postId)
                 .orElseThrow(() -> new IllegalArgumentException("Post not found"));
 
         // 2. 검증 로직
-
         // A. 이미 모집 완료되었는지 확인
         if (post.getStatus() != CoBuyStatus.RECRUITING) {
             throw new IllegalStateException("This post is not recruiting anymore.");
@@ -47,7 +43,6 @@ public class ParticipationService {
         }
 
         // 3. 참여 처리 (비즈니스 로직)
-
         // A. 참여자 명단에 추가 (INSERT)
         CoBuyParticipant participant = new CoBuyParticipant();
         participant.setPost(post);

@@ -6,9 +6,9 @@ import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, Long> {
 
-    // 닉네임으로 사용자를 찾는 메서드 (로그인 시 사용)
+    // 닉네임으로 사용자를 찾는 메서드
     Optional<User> findByNickname(String nickname);
 
-    // 닉네임이 이미 존재하는지 확인하는 메서드 (회원가입 시 중복 체크)
+    // 닉네임이 이미 존재하는지 확인하는 메서드
     boolean existsByNickname(String nickname);
 }

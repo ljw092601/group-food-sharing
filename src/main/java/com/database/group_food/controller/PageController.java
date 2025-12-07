@@ -1,13 +1,12 @@
-// src/main/java/com/database/group_food/controller/PageController.java
 package com.database.group_food.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 
-@Controller // RestController 아님! HTML을 반환하는 Controller
+@Controller
 public class PageController {
 
-    // 메인 페이지 (지도 화면)
+    // 메인 페이지
     @GetMapping("/")
     public String home() {
         return "index"; // templates/index.html을 찾아감

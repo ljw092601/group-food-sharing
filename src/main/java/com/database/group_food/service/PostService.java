@@ -1,4 +1,3 @@
-// src/main/java/com/database/group_food/service/PostService.java
 package com.database.group_food.service;
 
 import com.database.group_food.domain.CoBuyPost;
@@ -29,7 +28,7 @@ import java.util.List;
 public class PostService {
 
     private final CoBuyPostRepository postRepository;
-    private final TransactionReviewRepository reviewRepository; // [추가] 후기 확인용 리포지토리 주입
+    private final TransactionReviewRepository reviewRepository;
     private final GeometryUtil geometryUtil;
     private final CoBuyParticipantRepository participantRepository;
 
@@ -57,7 +56,7 @@ public class PostService {
         return postRepository.save(post);
     }
 
-    // [수정] User currentUser 파라미터 추가 및 로직 변경
+    // User currentUser 파라미터 추가 및 로직 변경
     @Transactional(readOnly = true)
     public List<PostResponseDto> getNearbyPosts(User currentUser, double longitude, double latitude, double radius) {
         Point myLocation = geometryUtil.createPoint(longitude, latitude);
@@ -65,11 +64,11 @@ public class PostService {
 
         return posts.stream().map(post -> {
             boolean isReviewed = false;
-            boolean isParticipant = false; // [추가] 초기값
+            boolean isParticipant = false;
 
             if (currentUser != null) {
                 isReviewed = reviewRepository.existsByPostAndReviewer(post, currentUser);
-                // [추가] 내가 이 글의 참여자인지 확인
+                // 내가 이 글의 참여자인지 확인
                 isParticipant = participantRepository.existsByPostAndParticipantUser(post, currentUser);
             }
 
@@ -114,5 +113,28 @@ public class PostService {
         post.setStatus(CoBuyStatus.PURCHASED);
 
         return accessUrl;
+    }
+
+    @Transactional(readOnly = true)
+    public List<PostResponseDto> getMyHostedPosts(User user) {
+        return postRepository.findAllByHostUserOrderByCreatedAtDesc(user)
+                .stream()
+                .map(post -> {
+                    return new PostResponseDto(post, false, false);
+                })
+                .collect(Collectors.toList());
+    }
+
+    // 내가 참여한 글 목록 가져오기
+    @Transactional(readOnly = true)
+    public List<PostResponseDto> getMyParticipatedPosts(User user) {
+        return postRepository.findAllParticipatedPosts(user)
+                .stream()
+                .map(post -> {
+                    // 참여한 글에 대해 내가 후기를 썼는지 확인
+                    boolean isReviewed = reviewRepository.existsByPostAndReviewer(post, user);
+                    return new PostResponseDto(post, isReviewed, true);
+                })
+                .collect(Collectors.toList());
     }
 }

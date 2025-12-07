@@ -1,4 +1,3 @@
-// src/main/java/com/database/group_food/service/UserService.java
 package com.database.group_food.service;
 
 import com.database.group_food.domain.User;
@@ -23,14 +22,12 @@ public class UserService implements UserDetailsService {
     private final PasswordEncoder passwordEncoder;
     private final GeometryUtil geometryUtil;
 
-    /**
-     * [Spring Security] 로그인 시 사용 (loadUserByUsername)
-     * 닉네임(username)으로 사용자를 DB에서 조회합니다.
-     */
+
+     // 로그인 시 사용 (loadUserByUsername) 닉네임(username)으로 사용자를 DB에서 조회
     @Override
     @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(String nickname) throws UsernameNotFoundException {
-        // findByNickname이 Optional<User>를 반환하며, 
+        // findByNickname이 Optional<User>를 반환,
         // User는 UserDetails를 구현했으므로 바로 반환 가능
         return userRepository.findByNickname(nickname)
                 .orElseThrow(() ->
@@ -38,10 +35,7 @@ public class UserService implements UserDetailsService {
                 );
     }
 
-    /**
-     * [AuthService] 회원가입 시 사용 (register)
-     * DTO를 받아 사용자를 생성하고 저장합니다.
-     */
+    // 회원가입 시 사용 (register), DTO를 받아 사용자를 생성하고 저장
     @Transactional
     public User register(RegisterRequestDto requestDto) {
 
@@ -57,7 +51,7 @@ public class UserService implements UserDetailsService {
         // 3. (경도, 위도) -> JTS Point 객체 변환
         Point location = geometryUtil.createPoint(requestDto.getLongitude(), requestDto.getLatitude());
 
-        // 4. User 엔티티 생성 (UserDetails가 구현된)
+        // 4. User 엔티티 생성
         User newUser = new User(
                 requestDto.getNickname(),
                 encodedPassword,

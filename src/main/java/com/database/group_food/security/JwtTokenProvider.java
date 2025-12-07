@@ -1,4 +1,3 @@
-// src/main/java/com/database/group_food/security/JwtTokenProvider.java
 package com.database.group_food.security;
 
 import io.jsonwebtoken.Jwts;
@@ -13,12 +12,11 @@ import java.util.Date;
 @Component
 public class JwtTokenProvider {
 
-    // 1. 비밀 키 (실무에서는 application.properties에 숨겨야 함)
-    // 32글자 이상이어야 합니다.
+    // 비밀 키
     private final String SECRET_KEY = "my-super-secure-secret-key-for-group-food-project-2025";
     private final SecretKey key = Keys.hmacShaKeyFor(SECRET_KEY.getBytes(StandardCharsets.UTF_8));
 
-    // 2. 토큰 유효 시간 (1일 = 24시간)
+    // 2. 토큰 유효 시간
     private final long EXPIRATION_MS = 86400000;
 
     // [토큰 생성]

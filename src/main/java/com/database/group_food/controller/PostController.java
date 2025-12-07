@@ -1,4 +1,3 @@
-// src/main/java/com/database/group_food/controller/PostController.java
 package com.database.group_food.controller;
 
 import com.database.group_food.domain.User;
@@ -8,9 +7,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import com.database.group_food.dto.response.PostResponseDto; // 임포트
+import com.database.group_food.dto.response.PostResponseDto;
 import java.util.List;
-import org.springframework.web.multipart.MultipartFile; // 임포트
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.http.MediaType;
 
 @RestController
@@ -34,7 +33,7 @@ public class PostController {
             @RequestParam double longitude,
             @RequestParam double latitude,
             @RequestParam(defaultValue = "1000") double radius,
-            @AuthenticationPrincipal User user // [필수] 현재 로그인한 유저 정보 받기
+            @AuthenticationPrincipal User user // 현재 로그인한 유저 정보 받기
     ) {
         // 서비스에 user를 넘겨줍니다
         return ResponseEntity.ok(postService.getNearbyPosts(user, longitude, latitude, radius));

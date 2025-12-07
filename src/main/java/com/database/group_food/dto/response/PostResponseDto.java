@@ -1,4 +1,3 @@
-// src/main/java/com/database/group_food/dto/response/PostResponseDto.java
 package com.database.group_food.dto.response;
 
 import com.database.group_food.domain.CoBuyPost;
@@ -24,7 +23,6 @@ public class PostResponseDto {
     private String purchaseUrl;
     private Double hostTrustScore;
 
-    // ★ JSON으로 나갈 때 "isReviewed": true/false 로 강제함
     @JsonProperty("isReviewed")
     private boolean isReviewed;
 
@@ -34,7 +32,6 @@ public class PostResponseDto {
     private double longitude;
     private double latitude;
 
-    // ▼▼▼ [수정] 생성자 파라미터에 boolean isReviewed 추가 ▼▼▼
     public PostResponseDto(CoBuyPost entity, boolean isReviewed, boolean isParticipant) {
         this.postId = entity.getPostId();
         this.hostUserId = entity.getHostUser().getUserId();
@@ -51,8 +48,6 @@ public class PostResponseDto {
         this.longitude = entity.getLocation().getX();
         this.latitude = entity.getLocation().getY();
         this.purchaseUrl = entity.getPurchaseUrl();
-
-        // ▼▼▼ [추가] 받아온 값 저장 ▼▼▼
         this.isReviewed = isReviewed;
         this.isParticipant = isParticipant;
     }

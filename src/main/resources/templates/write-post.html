@@ -22,7 +22,7 @@
 <body>
 
 <div class="container">
-    <h2>📦 새 공동구매 모집</h2>
+    <h2>새 공동구매 모집</h2>
     <form id="postForm">
 
         <label>물품명</label>
@@ -51,7 +51,7 @@
 
         <label>거래 희망 장소 (지도 클릭)</label>
         <div id="map"></div>
-        <div class="map-hint">📍 지도를 클릭하거나 드래그해서 마커 위치를 정해주세요.</div>
+        <div class="map-hint">지도를 클릭하거나 드래그해서 마커 위치를 정해주세요.</div>
 
         <input type="hidden" id="pricePerUnit"> <input type="hidden" id="lat">
         <input type="hidden" id="lng">
@@ -109,7 +109,7 @@
             // 1인당 가격 계산 (소수점 버림)
             const perPerson = Math.floor(totalPrice / totalUnits);
 
-            resultBox.innerHTML = `💡 1인당 부담금: <strong>${perPerson.toLocaleString()}원</strong>`;
+            resultBox.innerHTML = `1인당 부담금: <strong>${perPerson.toLocaleString()}원</strong>`;
             hiddenInput.value = perPerson; // 서버로 보낼 값 저장
         } else {
             resultBox.innerText = "총 가격과 인원을 입력해주세요.";

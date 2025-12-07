@@ -11,7 +11,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @OpenAPIDefinition(
 		info = @Info(title = "Group Food API", version = "v1", description = "동네 기반 식재료 공동구매 서비스 API 문서"),
-		security = { @SecurityRequirement(name = "bearerAuth") } // 모든 API에 이 보안 설정을 적용
+		security = { @SecurityRequirement(name = "bearerAuth") }
 )
 @SecurityScheme(
 		name = "bearerAuth",

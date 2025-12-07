@@ -1,11 +1,8 @@
-// src/main/java/com/database/group_food/controller/AuthController.java
 package com.database.group_food.controller;
 
-import com.database.group_food.domain.User;
 import com.database.group_food.dto.request.LoginRequestDto;
 import com.database.group_food.dto.request.RegisterRequestDto;
 import com.database.group_food.service.UserService;
-import com.database.group_food.dto.request.RegisterRequestDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -17,7 +14,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import com.database.group_food.security.JwtTokenProvider; // 임포트
+import com.database.group_food.security.JwtTokenProvider;
 import java.util.Map;
 
 @RestController
@@ -67,7 +64,7 @@ public class AuthController {
             // 2. 인증 정보를 Context에 저장
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
-            // 3. [핵심] JWT 토큰 생성
+            // 3. JWT 토큰 생성
             String jwt = jwtTokenProvider.generateToken(authentication);
 
             // 4. 토큰 반환 (JSON 형식으로 주는 것이 깔끔함)

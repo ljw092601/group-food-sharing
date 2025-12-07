@@ -1,4 +1,3 @@
-// src/main/java/com/database/group_food/repository/TransactionReviewRepository.java
 package com.database.group_food.repository;
 
 import com.database.group_food.domain.CoBuyPost;

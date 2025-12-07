@@ -1,6 +1,5 @@
 package com.database.group_food.domain;
 
-// CoBuyParticipant.java
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -8,7 +7,6 @@ import lombok.Setter;
 @Entity
 @Table(name = "\"CoBuy_Participant\"",
         uniqueConstraints = {
-                // SQL의 UNIQUE (post_id, participant_user_id) 구현
                 @UniqueConstraint(columnNames = {"post_id", "participant_user_id"})
         }
 )

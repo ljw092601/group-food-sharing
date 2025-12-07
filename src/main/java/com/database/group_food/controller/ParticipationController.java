@@ -1,4 +1,3 @@
-// src/main/java/com/database/group_food/controller/ParticipationController.java
 package com.database.group_food.controller;
 
 import com.database.group_food.domain.User;

@@ -1,4 +1,3 @@
-// src/main/java/com/database/group_food/config/WebMvcConfig.java
 package com.database.group_food.config;
 
 import org.springframework.beans.factory.annotation.Value;

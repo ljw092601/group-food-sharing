@@ -1,4 +1,3 @@
-// src/main/java/com/database/group_food/dto/request/PostCreateRequestDto.java
 package com.database.group_food.dto.request;
 
 import lombok.Getter;

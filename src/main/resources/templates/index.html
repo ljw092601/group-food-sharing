@@ -22,12 +22,14 @@
 </head>
 <body>
 
-<div style="position: fixed; bottom: 10px; left: 10px; background: rgba(0,0,0,0.8); padding: 10px; border-radius: 8px; z-index: 9999; color: white;">
-    <div style="font-size: 12px; margin-bottom: 5px; font-weight: bold;">⚡ Dev Tools</div>
-    <button onclick="quickLogin('host1', 'password123')" style="background: #ff9800; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; margin-right: 5px;">👨‍💼 방장(host1)</button>
-    <button onclick="quickLogin('parti1', 'password123')" style="background: #2196F3; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; margin-right: 5px;">🙋 참여자(parti1)</button>
-    <button onclick="quickLogin('parti2', 'password123')" style="background: #45a049; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">🙋 참여자(parti2)</button>
-</div>
+<!--간편 로그인 (실제 서비스에선 삭제)-->
+<!--<div style="position: fixed; bottom: 10px; left: 10px; background: rgba(0,0,0,0.8); padding: 10px; border-radius: 8px; z-index: 9999; color: white;">-->
+<!--    <div style="font-size: 12px; margin-bottom: 5px; font-weight: bold;">⚡ Dev Tools</div>-->
+<!--    <button onclick="quickLogin('host1', 'password123')" style="background: #ff9800; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; margin-right: 5px;">👨‍💼 방장(host1)</button>-->
+<!--    <button onclick="quickLogin('parti1', 'password123')" style="background: #2196F3; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; margin-right: 5px;">🙋 참여자(parti1)</button>-->
+<!--    <button onclick="quickLogin('parti2', 'password123')" style="background: #45a049; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">🙋 참여자(parti2)</button>-->
+<!--</div>-->
+
 
 <div class="auth-box" id="authBox">
     <a href="/login">로그인</a> | <a href="/register">회원가입</a>
@@ -121,7 +123,7 @@
         if (status === 'RECRUITING') return blueIcon;
         if (status === 'FULL' || status === 'PURCHASED') return redIcon;
         if (status === 'COMPLETED') return greenIcon;
-        return blueIcon; // 기본
+        return blueIcon;
     }
 
     // 4. 지도에 마커 찍기
@@ -152,7 +154,6 @@
             image: markerImage // 이미지 옵션 추가
         });
 
-        // --- (아래 버튼 생성 로직은 기존과 동일하거나 약간 다듬음) ---
         let buttonsHtml = '';
 
         if (myUserId === post.hostUserId) {
@@ -169,7 +170,6 @@
             if (post.status === 'RECRUITING') {
                 buttonsHtml = `<button onclick="joinPost(${post.postId})" style="background:#2196F3; color:white; border:none; padding:5px;">🙋 참여하기</button>`;
             } else if (post.status === 'COMPLETED') {
-                // ★ 여기서 '후기 작성'을 유도합니다.
                 buttonsHtml = `<button onclick="writeReview(${post.postId})" style="background:#4CAF50; color:white; border:none; padding:5px;">⭐ 후기작성</button>`;
             } else {
                 buttonsHtml = `<span style="color:gray;">(진행 중...)</span>`;
@@ -186,7 +186,7 @@
                            </div>`;
         }
 
-        // 2. 상세 내용 (너무 길면 자르기 - 선택사항)
+        // 2. 상세 내용 (너무 길면 자르기)
         let descHtml = '';
         const maxLen = 20; // 20자 넘으면 자름
 
@@ -252,6 +252,7 @@
         });
     }
 
+    // 매번 로그인하기 귀찮아서 만든 임시 로그인 함수
     function quickLogin(nickname, password) {
         fetch('/api/auth/login', {
             method: 'POST',
@@ -264,7 +265,7 @@
             })
             .then(data => {
                 localStorage.setItem('accessToken', data.accessToken);
-                // alert(nickname + " 로그인 완료!"); // 귀찮으면 이 줄 주석 처리
+                // alert(nickname + " 로그인 완료!"); // 굳이?? 오히려 귀찮을듯
                 window.location.reload(); // 페이지 새로고침하여 즉시 적용
             })
             .catch(err => {
@@ -286,8 +287,8 @@
     };
 
     window.uploadReceipt = function(postId) {
-        // 간이 파일 업로드 (Prompt 대신 hidden input을 쓰면 좋지만, 간단하게 구현)
-        // 실제로는 별도 모달창이 필요하지만, 여기선 "파일 선택창"을 동적으로 띄웁니다.
+        // 간이 파일 업로드 (Prompt 대신 hidden input을 쓰면 좋지만 귀찮아서 간단하게 구현)
+        // 실제로는 별도 모달창이 필요하지만, 여기선 그냥 "파일 선택창"을 동적으로 띄웠음
         let input = document.createElement('input');
         input.type = 'file';
         input.onchange = e => {
@@ -334,7 +335,7 @@
             // PostResponseDto에 hostUserId가 있으니 그걸 넘겨줘야 함.
         }).then(res => {
             // (ReviewService를 수정하지 않았다면 400이 뜰 수 있음.
-            //  Dto에 hostUserId가 있으니 그걸 인자로 넘기는게 정석)
+            //  원래는 Dto에 hostUserId가 있으니 그걸 인자로 넘기는게 정석)
             if(res.ok) { alert("후기 전송 완료!"); location.reload(); }
             else alert("이미 작성했거나 오류가 있습니다.");
         });

@@ -1,6 +1,5 @@
 package com.database.group_food.domain;
 
-// TransactionReview.java
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -36,7 +35,7 @@ public class TransactionReview {
     private User reviewee;
 
     @Column(nullable = false)
-    private int rating; // (JPA에서는 @Min(1) @Max(5) 등으로 검증)
+    private int rating;
 
     @Column(columnDefinition = "TEXT")
     private String comment;

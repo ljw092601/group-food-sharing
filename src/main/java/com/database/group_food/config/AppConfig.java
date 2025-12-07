@@ -1,4 +1,3 @@
-// src/main/java/com/database/group_food/config/AppConfig.java
 package com.database.group_food.config;
 
 import org.springframework.context.annotation.Bean;

@@ -53,6 +53,20 @@
         <button class="btn-save" onclick="updateLocation()">위치 변경 저장</button>
     </div>
 
+    <hr style="margin: 30px 0; border: 0; border-top: 1px solid #eee;">
+
+    <h3 style="color:#555;">📜 거래 내역</h3>
+
+    <div style="display:flex; gap:10px; margin-bottom:15px;">
+        <button onclick="loadList('hosted')" id="btn-hosted" style="flex:1; background:#4CAF50; color:white;">내가 만든 모임</button>
+
+        <button onclick="loadList('participated')" id="btn-participated" style="flex:1; background:#ddd; color:black;">내가 참여한 모임</button>
+    </div>
+
+    <div id="list-container" style="max-height: 300px; overflow-y: auto;">
+        <div style="text-align:center; color:gray; padding:20px;">내역을 불러오고 있습니다...</div>
+    </div>
+
     <button class="btn-back" onclick="location.href='/'">메인으로 돌아가기</button>
 </div>
 
@@ -78,8 +92,7 @@
             document.getElementById('nickname').innerText = user.nickname;
             document.getElementById('trustScore').innerText = user.trustScore.toFixed(1); // 소수점 1자리까지
 
-            // 지도 초기화 (기존 설정된 위치가 있다면 좋겠지만, 보안상 API가 좌표를 안 주면 기본값 사용)
-            // 여기서는 편의상 부산대 근처를 기본값으로 잡고 시작합니다.
+            // 지도 초기화 (기존 설정된 위치가 있다면 좋지만, 보안상 API가 좌표를 줘서 걍 기본값(부산대 근처) 사용)
             initMap(35.232, 129.082);
         });
 
@@ -105,14 +118,14 @@
         });
     }
 
-    // 3. 위치 변경 요청 (PUT)
+    // 3. 위치 변경 요청
     function updateLocation() {
         if (!selectedLat || !selectedLng) {
             alert("지도에서 변경할 위치를 클릭해주세요.");
             return;
         }
 
-        if(!confirm("정말 이 위치로 변경하시겠습니까?")) return;
+        if (!confirm("정말 이 위치로 변경하시겠습니까?")) return;
 
         fetch('/api/users/me/location', {
             method: 'PUT',
@@ -120,7 +133,7 @@
                 'Content-Type': 'application/json',
                 'Authorization': 'Bearer ' + token
             },
-            body: JSON.stringify({ latitude: selectedLat, longitude: selectedLng })
+            body: JSON.stringify({latitude: selectedLat, longitude: selectedLng})
         })
             .then(res => {
                 if (res.ok) {
@@ -130,7 +143,65 @@
                     alert("변경 실패. 다시 시도해주세요.");
                 }
             });
+        loadList('hosted');
     }
+
+    function loadList(type) {
+        const container = document.getElementById('list-container');
+        const btnHosted = document.getElementById('btn-hosted');
+        const btnParti = document.getElementById('btn-participated');
+
+        // 버튼 스타일 토글
+        if (type === 'hosted') {
+            btnHosted.style.background = '#4CAF50'; btnHosted.style.color = 'white';
+            btnParti.style.background = '#ddd'; btnParti.style.color = 'black';
+        } else {
+            btnHosted.style.background = '#ddd'; btnHosted.style.color = 'black';
+            btnParti.style.background = '#4CAF50'; btnParti.style.color = 'white';
+        }
+
+        container.innerHTML = '<div style="text-align:center; padding:20px;">로딩 중...</div>';
+
+        fetch(`/api/users/me/${type}`, {
+            headers: { 'Authorization': 'Bearer ' + token }
+        })
+            .then(res => res.json())
+            .then(posts => {
+                if (posts.length === 0) {
+                    container.innerHTML = '<div style="text-align:center; color:gray; padding:20px;">내역이 없습니다.</div>';
+                    return;
+                }
+
+                let html = '';
+                posts.forEach(post => {
+                    // 상태별 색상 (지도랑 깔맞춤)
+                    let statusColor = '#999';
+                    let statusText = post.status;
+                    if(post.status === 'RECRUITING') { statusColor = 'blue'; statusText = '모집중'; }
+                    else if(post.status === 'FULL') { statusColor = '#fbc02d'; statusText = '인원마감'; }
+                    else if(post.status === 'PURCHASED') { statusColor = 'red'; statusText = '구매완료'; }
+                    else if(post.status === 'COMPLETED') { statusColor = 'green'; statusText = '거래완료'; }
+
+                    html += `
+                <div style="border:1px solid #eee; padding:15px; margin-bottom:10px; border-radius:8px; background:#f9f9f9;">
+                    <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+                        <strong style="font-size:16px;">${post.itemName}</strong>
+                        <span style="font-size:12px; font-weight:bold; color:${statusColor};">${statusText}</span>
+                    </div>
+                    <div style="font-size:13px; color:#555;">
+                        가격: ${post.pricePerUnit.toLocaleString()}원 | 인원: ${post.currentUnits}/${post.totalUnits}명
+                    </div>
+                    <div style="font-size:12px; color:#999; margin-top:5px;">
+                        ${post.createdAt}
+                        ${type === 'participated' && post.reviewed ? '<span style="color:green; margin-left:5px;">(후기작성완료)</span>' : ''}
+                    </div>
+                </div>
+            `;
+                });
+                container.innerHTML = html;
+            });
+    }
+    loadList('hosted');
 </script>
 
 </body>

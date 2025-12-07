@@ -1,4 +1,3 @@
-// src/main/java/com/database/group_food/controller/ReviewController.java
 package com.database.group_food.controller;
 
 import com.database.group_food.domain.User;
@@ -16,10 +15,7 @@ public class ReviewController {
 
     private final ReviewService reviewService;
 
-    /**
-     * 후기 작성 API
-     * POST /api/posts/{postId}/reviews
-     */
+    // 후기 작성 API
     @PostMapping("/posts/{postId}/reviews")
     public ResponseEntity<?> createReview(
             @PathVariable Long postId,
